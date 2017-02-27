@@ -33,15 +33,40 @@ def get_images():
 			image_soup = BeautifulSoup(image_src.text, 'html.parser')
 
 			image_title = image_soup.find('h1').text
-			image = image_soup.findAll('img')[8].get('src')			# the actual image
-
 			folder_name = folder_path + '/' + project_title
+			image_name = folder_path + '/' + project_title + '/' + image_title + '.jpg'
 			os.makedirs(folder_name, exist_ok=True)
-			# create folder if it doesn't exist
-			urllib.request.urlretrieve(image, folder_name + '/' + image_title + '.jpg')
 
+			image = image_soup.findAll('img')[9].get('src')			# the actual image
+
+			get_image(image, image_name, image_title, project_title, image_soup)
+
+
+def get_image(image, image_name, image_title, project_title, image_soup):
+	# do not try this at home
+	# create folder if it doesn't exist
+	if (os.path.exists(image_name)):
+		print('image ' + image_name + ' already exists')
+	else:
+		try:
+			# temporary hack
+			urllib.request.urlretrieve(image, image_name)
 			# confirmation message
 			print('Finished downloading ' + image_title + ' from ' + project_title)
+		except:
+			if (image != image_soup.findAll('img')[8].get('src')):
+				try:
+					image = image_soup.findAll('img')[8].get('src')
+					get_image(image, image_name, image_title, project_title, image_soup)
+				except:
+					pass
+				else:
+					try:
+						image = image_soup.findAll('img')[10].get('src')
+						get_image(image, image_name, image_title, project_title, image_soup)
+					except:
+						pass
+						# please dont do this to yourself
 
 
 if __name__ == '__main__':
